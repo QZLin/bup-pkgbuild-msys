@@ -1,13 +1,18 @@
 ## arg 1:  the new package version
 #pre_install() {
-	# do something here
+#	 do something here
 #}
 
 ## arg 1:  the new package version
-# post_install() {
-# 	ln -s /usr/local/lib/bup/cmd/bup.exe /usr/local/bin/bup
-# 	mv /usr/local/lib/bup/bup/_helpers.so /usr/local/lib/bup/bup/_helpers.dll
-# }
+post_install() {
+	cd /usr/bin
+	rm -f bup
+	ln -sr /usr/lib/bup/cmd/bup.exe bup
+	#
+	cd /usr/lib/bup/bup/
+	rm -f _helpers.dll
+	ln -sr _helpers.so _helpers.dll
+}
 
 ## arg 1:  the new package version
 ## arg 2:  the old package version
@@ -23,11 +28,11 @@
 
 ## arg 1:  the old package version
 # pre_remove() {
-# 	unlink /usr/local/bin/bup
-# 	mv /usr/local/lib/bup/bup/_helpers.dll /usr/local/lib/bup/bup/_helpers.so
+# 	rm -f /usr/bin/bup
+# 	rm -f /usr/lib/bup/bup/_helpers.dll
 # }
 
 ## arg 1:  the old package version
 #post_remove() {
-	# do something here
+#	  do something here
 #}

@@ -18,30 +18,29 @@ prepare() {
 build() {
     cd "$srcdir/$pkgname-$pkgver"
     ./configure
+    pushd 'lib/bup'
+        rm -f _helpers.so
+        touch _helpers.so
+        ln -srf _helpers.so _helpers.dll
+        rm _helpers.so
+    popd
     make
-    find -name '*.so' | while read line; do mv $line ${line/.so/.dll}; done
+    # find -name '*.so' | while read line; do mv $line ${line/.so/.dll}; done
 }
 package() {
     cd "$srcdir/$pkgname-$pkgver"
     make DESTDIR="$pkgdir" PREFIX=/usr install
-    # msys special
-    # find $pkgdir/usr/bin -name 'bup*' | while read line; do rm -f $line; done
+    rm -f "$pkgdir/usr/bin/bup"
+    touch "$pkgdir/usr/bin/bup"
+    rm -f "$pkgdir/usr/lib/bup/bup/_helpers.dll"
+    touch "$pkgdir/usr/lib/bup/bup/_helpers.dll"
 
-    DUMMY_BUP='/usr/lib/bup/cmd/bup.exe'
-    DUMMY_BUP_DIR=$(dirname $DUMMY_BUP)
-    if [ -f '/usr/lib/bup/cmd/bup.exe' ]; then
-        DUMMY_BUP=false
-    else
-        if ! [ -d $DUMMY_BUP_DIR ]; then
-            DUMMY_BUP_DIR=true
-            mkdir -p $DUMMY_BUP_DIR
-        fi
-    fi
-    ln -sfr -t $pkgdir/usr/bin '/usr/lib/bup/cmd/bup.exe' bup
-    find $pkgdir/usr/lib/bup -name '*.so' | while read line; do mv $line ${line/.so/.dll}; done
+    # pushd "$pkgdir/usr/bin"
+    #     ln -srf "$pkgdir/usr/lib/bup/cmd/bup.exe" bup
+    # popd
+    # pushd "$pkgdir/usr/lib/bup/bup"
+    #     ln -srf _helpers.so _helpers.dll
+    # popd
 
-    if $DUMMY_BUP; then rm /usr/lib/bup/cmd/bup.exe; fi
-    if $DUMMY_BUP_DIR; then rmdir /usr/lib/bup/cmd; fi
-    unset DUMMY_BUP DUMMY_BUP_DIR
 }
 install=bup.install
