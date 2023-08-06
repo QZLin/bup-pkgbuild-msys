@@ -1,0 +1,69 @@
+name: Build
+permissions: write-all
+
+on:
+  push:
+    branches:
+      - msys
+      - build
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: windows-2019
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/cache/restore@v3
+        with:
+          path: ${{ runner.temp }}/msys64
+          key: ${{ runner.os }}-msys
+      - uses: msys2/setup-msys2@v2
+        if: steps.cache.outputs.cache-hit != 'true'
+        with:
+          install: >-
+            gcc
+            python3
+            make
+            rsync
+            gettext-devel
+      - uses: actions/cache/save@v3
+        with:
+          path: ${{ runner.temp }}/msys64
+          key: ${{ runner.os }}-msys
+
+      - name: Detect git
+        run: |-
+          $GIT_PATH = (Get-Item (Get-Command git).Source).Directory.FullName
+          echo "GIT_PATH=$GIT_PATH" >> $ENV:GITHUB_ENV
+      - name: Detect msys
+        run: |-
+          $MSYS_HOME = "${{ runner.temp }}\msys64"
+          ls $MSYS_HOME
+          echo "MSYS_HOME=$MSYS_HOME" >> $ENV:GITHUB_ENV
+
+      - uses: actions/checkout@v3
+        with:
+          repository: QZLin/bup-pkgbuild-msys
+          ref: build
+
+      - uses: actions/checkout@v3
+        with:
+          repository: QZLin/bup-msys
+          ref: msys
+          path: src/bup-0.34
+      - name: build bup
+        shell: msys2 {0}
+        env:
+          GIT_PATH: ${{ env.GIT_PATH }}
+        run: |-
+          GIT_PATH=$(cd "$GIT_PATH"; pwd)
+          export PATH="$PATH:$GIT_PATH"
+
+          makepkg
+
+      - name: Pack and upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: debug
+          path: . # or path/to/artifact
