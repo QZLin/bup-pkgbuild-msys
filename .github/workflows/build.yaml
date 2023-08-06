@@ -15,22 +15,26 @@ jobs:
         shell: pwsh
     steps:
       - uses: actions/cache/restore@v3
+        id: cache-msys-restore
         with:
           path: ${{ runner.temp }}/msys64
           key: ${{ runner.os }}-msys
       - uses: msys2/setup-msys2@v2
-        if: steps.cache.outputs.cache-hit != 'true'
+        if: steps.cache-msys-restore.outputs.cache-hit != 'true'
         with:
           install: >-
             gcc
-            python3
+            python
             make
             rsync
             gettext-devel
+            git
+            libreadline-devel
+
       - uses: actions/cache/save@v3
         with:
           path: ${{ runner.temp }}/msys64
-          key: ${{ runner.os }}-msys
+          key: ${{ steps.cache-msys-restore.outputs.cache-primary-key }}
 
       - name: Detect git
         run: |-
@@ -54,12 +58,11 @@ jobs:
           path: src/bup-0.34
       - name: build bup
         shell: msys2 {0}
+        working-directory: ${{ runner.temp }}/bup-pkgbuild-msys
         env:
           GIT_PATH: ${{ env.GIT_PATH }}
         run: |-
-          GIT_PATH=$(cd "$GIT_PATH"; pwd)
-          export PATH="$PATH:$GIT_PATH"
-
+          ls
           makepkg
 
       - name: Pack and upload
