@@ -40,7 +40,7 @@ jobs:
         run: |-
           Set-ExecutionPolicy RemoteSigned -Scope CurrentUser # Optional: Needed to run a remote script the first time
           Invoke-WebRequest get.scoop.sh -OutFile install.ps1
-          ./install.ps1 -ScoopDir ${{ runner.temp }}\scoop
+          ./install.ps1 -RunAsAdmin -ScoopDir ${{ runner.temp }}\scoop
           scoop install pandoc
       - name: Detect git
         run: |-
