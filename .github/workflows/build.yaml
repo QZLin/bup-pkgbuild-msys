@@ -58,10 +58,11 @@ jobs:
           ref: msys
           path: src/bup-0.34
       - name: build bup
-        shell: msys2 {0}
         working-directory: ${{ github.workspace }}
         run: |-
-          makepkg
+          msys2 -c 'pwd'
+          msys2 -c 'makepkg'
+          ls
 
       - name: Pack and upload
         uses: actions/upload-artifact@v3
