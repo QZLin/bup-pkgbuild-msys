@@ -44,8 +44,8 @@ jobs:
         run: |-
           $MSYS_HOME = "${{ runner.temp }}\msys64"
           ls $MSYS_HOME
+          "$MSYS_HOME" >> $env:GITHUB_PATH
           echo "MSYS_HOME=$MSYS_HOME" >> $ENV:GITHUB_ENV
-          $env:PATH = "$env:PATH;$MSYS_HOME"
 
       - uses: actions/checkout@v3
         with:
@@ -59,7 +59,7 @@ jobs:
           path: src/bup-0.34
       - name: build bup
         shell: msys2 {0}
-        working-directory: ${{ env.HOME }}
+        working-directory: ${{ github.workspace }}
         run: |-
           ls
           makepkg
