@@ -27,8 +27,8 @@ jobs:
             python
             make
             rsync
-            gettext-devel
             git
+            gettext-devel
             libreadline-devel
 
       - uses: actions/cache/save@v3
@@ -45,6 +45,7 @@ jobs:
           $MSYS_HOME = "${{ runner.temp }}\msys64"
           ls $MSYS_HOME
           echo "MSYS_HOME=$MSYS_HOME" >> $ENV:GITHUB_ENV
+          $env:PATH = "$env:PATH;$MSYS_HOME"
 
       - uses: actions/checkout@v3
         with:
@@ -59,8 +60,6 @@ jobs:
       - name: build bup
         shell: msys2 {0}
         working-directory: ${{ runner.temp }}/bup-pkgbuild-msys
-        env:
-          GIT_PATH: ${{ env.GIT_PATH }}
         run: |-
           ls
           makepkg
