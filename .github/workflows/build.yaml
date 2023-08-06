@@ -36,6 +36,12 @@ jobs:
           path: ${{ runner.temp }}/msys64
           key: ${{ steps.cache-msys-restore.outputs.cache-primary-key }}
 
+      - name: setup scoop
+        run: |-
+          Set-ExecutionPolicy RemoteSigned -Scope CurrentUser # Optional: Needed to run a remote script the first time
+          Invoke-WebRequest get.scoop.sh -OutFile install.ps1
+          ./install.ps1 -ScoopDir ${{ runner.temp }}\scoop
+          scoop install pandoc
       - name: Detect git
         run: |-
           $GIT_PATH = (Get-Item (Get-Command git).Source).Directory.FullName
@@ -44,6 +50,9 @@ jobs:
         run: |-
           $MSYS_HOME = "${{ runner.temp }}\msys64"
           ls $MSYS_HOME
+          $scoop_shims = '/'+(Get-Item ${{ runner.temp }}\scoop\shims).ToString().Replace(':\','/').Replace('\','/')
+          echo "export PATH=`$PATH:$scoop_shims" > $MSYS_HOME\etc\profile.d\scoop.sh
+
           "$MSYS_HOME" >> $env:GITHUB_PATH
           echo "MSYS_HOME=$MSYS_HOME" >> $ENV:GITHUB_ENV
 
@@ -64,9 +73,10 @@ jobs:
           msys 'pwd'
           msys 'makepkg'
           ls
+          echo OUTPUT=$((ls -Filter "*.pkg.tar.zst")[0].Name) >> $ENV:GITHUB_ENV
 
       - name: Pack and upload
         uses: actions/upload-artifact@v3
         with:
           name: debug
-          path: . # or path/to/artifact
+          path: ${{ env.OUTPUT }}
