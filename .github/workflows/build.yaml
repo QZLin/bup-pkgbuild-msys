@@ -60,9 +60,9 @@ jobs:
       - name: build bup
         working-directory: ${{ github.workspace }}
         run: |-
-          function msys2($command){.\msys2_shell.cmd -here -ucrt64 -defterm -no-start -c $command}
-          msys2 'pwd'
-          msys2 'makepkg'
+          function msys($command){msys2_shell.cmd -here -ucrt64 -defterm -no-start -c $command}
+          msys 'pwd'
+          msys 'makepkg'
           ls
 
       - name: Pack and upload
