@@ -11,14 +11,19 @@ depends=('python>=3.7','gettext-devel','rsync','git')
 optdepends=('libreadline-devel','pandoc')
 makedepends=('gcc>=4','make')
 
+ln_fixed() {
+    rm -f $1
+    touch $1
+    ln -srf $1 $2
+    rm -f $1
+}
 build() {
     cd "$srcdir/$pkgname-$pkgver"
     ./configure
+    ln_fixed lib/cmd/bup.exe bup
+
     pushd 'lib/bup'
-    rm -f _helpers.so
-    touch _helpers.so
-    ln -srf _helpers.so _helpers.dll
-    rm _helpers.so
+    ln_fixed _helpers.so _helpers.dll
     popd
     make
     # find -name '*.so' | while read line; do mv $line ${line/.so/.dll}; done
