@@ -7,22 +7,18 @@ pkgdesc='Efficient backup system based on the git packfile format'
 arch=("x86_64")
 url='https://bup.github.io/'
 license=(GPL)
-depends=('python>=3.7','gettext-devel','rsync')
+depends=('python>=3.7','gettext-devel','rsync','git')
 optdepends=('libreadline-devel','pandoc')
 makedepends=('gcc>=4','make')
-license=('LGPL2')
 
-prepare() {
-    cd "$srcdir/$pkgname-$pkgver"
-}
 build() {
     cd "$srcdir/$pkgname-$pkgver"
     ./configure
     pushd 'lib/bup'
-        rm -f _helpers.so
-        touch _helpers.so
-        ln -srf _helpers.so _helpers.dll
-        rm _helpers.so
+    rm -f _helpers.so
+    touch _helpers.so
+    ln -srf _helpers.so _helpers.dll
+    rm _helpers.so
     popd
     make
     # find -name '*.so' | while read line; do mv $line ${line/.so/.dll}; done
@@ -34,13 +30,5 @@ package() {
     touch "$pkgdir/usr/bin/bup"
     rm -f "$pkgdir/usr/lib/bup/bup/_helpers.dll"
     touch "$pkgdir/usr/lib/bup/bup/_helpers.dll"
-
-    # pushd "$pkgdir/usr/bin"
-    #     ln -srf "$pkgdir/usr/lib/bup/cmd/bup.exe" bup
-    # popd
-    # pushd "$pkgdir/usr/lib/bup/bup"
-    #     ln -srf _helpers.so _helpers.dll
-    # popd
-
 }
 install=bup.install
