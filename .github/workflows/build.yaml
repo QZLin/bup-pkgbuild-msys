@@ -59,7 +59,7 @@ jobs:
           path: src/bup-0.34
       - name: build bup
         shell: msys2 {0}
-        working-directory: ${{ runner.temp }}/bup-pkgbuild-msys
+        working-directory: ${{ env.HOME }}
         run: |-
           ls
           makepkg
