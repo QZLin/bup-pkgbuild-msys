@@ -4,7 +4,7 @@ permissions: write-all
 on:
   push:
     branches:
-      - msys
+      - main
       - build
   workflow_dispatch:
 jobs:
