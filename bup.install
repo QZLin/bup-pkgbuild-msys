@@ -1,7 +1,23 @@
+check_winsymlinks() {
+	for item in $(echo $MSYS | tr ' ' "\n"); do
+		key=$(echo "$item" | cut -d ':' -f 1)
+		if [[ "$key" = "winsymlinks" ]]; then
+			value=$(echo "$item" | cut -d ':' -f 2)
+			if [[ "$value" = "nativestrict" ]]; then
+				return 0
+			else
+				echo "winsymlinks set to nativestrict is required"
+				return 2
+			fi
+		fi
+	done
+	echo "MSYS=winsymlinks:nativestrict is required"
+	return 1
+}
 ## arg 1:  the new package version
-#pre_install() {
-#	 do something here
-#}
+pre_install() {
+	check_winsymlinks
+}
 
 ## arg 1:  the new package version
 post_install() {
@@ -17,13 +33,13 @@ post_install() {
 ## arg 1:  the new package version
 ## arg 2:  the old package version
 #pre_upgrade() {
-	# do something here
+# do something here
 #}
 
 ## arg 1:  the new package version
 ## arg 2:  the old package version
 #post_upgrade() {
-	# do something here
+# do something here
 #}
 
 ## arg 1:  the old package version
